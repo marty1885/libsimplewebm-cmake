@@ -2,3 +2,7 @@ simplewebm
 *.pro.user
 Makefile
 *.o
+
+build/
+*.pcm
+*.webm

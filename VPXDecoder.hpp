@@ -31,8 +31,8 @@ struct vpx_codec_ctx;
 
 class VPXDecoder
 {
-	VPXDecoder(const VPXDecoder &);
-	void operator =(const VPXDecoder &);
+	VPXDecoder(const VPXDecoder &) = delete;
+	void operator =(const VPXDecoder &) = delete;
 public:
 	class Image
 	{

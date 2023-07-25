@@ -27,6 +27,9 @@
 
 #include <stddef.h>
 
+#include <stdio.h>
+#include <mkvparser/mkvparser.h>
+
 namespace mkvparser {
 	class IMkvReader;
 	class Segment;
@@ -37,10 +40,50 @@ namespace mkvparser {
 	class AudioTrack;
 }
 
+class MkvReader : public mkvparser::IMkvReader
+{
+public:
+	MkvReader(const char *filePath) :
+		m_file(fopen(filePath, "rb"))
+	{}
+	~MkvReader()
+	{
+		if (m_file)
+			fclose(m_file);
+	}
+
+	int Read(long long pos, long len, unsigned char *buf)
+	{
+		if (!m_file)
+			return -1;
+		fseek(m_file, pos, SEEK_SET);
+		const size_t size = fread(buf, 1, len, m_file);
+		if (size < size_t(len))
+			return -1;
+		return 0;
+	}
+	int Length(long long *total, long long *available)
+	{
+		if (!m_file)
+			return -1;
+		const off_t pos = ftell(m_file);
+		fseek(m_file, 0, SEEK_END);
+		if (total)
+			*total = ftell(m_file);
+		if (available)
+			*available = ftell(m_file);
+		fseek(m_file, pos, SEEK_SET);
+		return 0;
+	}
+
+private:
+	FILE *m_file;
+};
+
 class WebMFrame
 {
-	WebMFrame(const WebMFrame &);
-	void operator =(const WebMFrame &);
+	WebMFrame(const WebMFrame &) = delete;
+	void operator =(const WebMFrame &) = delete;
 public:
 	WebMFrame();
 	~WebMFrame();
@@ -58,8 +101,8 @@ public:
 
 class WebMDemuxer
 {
-	WebMDemuxer(const WebMDemuxer &);
-	void operator =(const WebMDemuxer &);
+	WebMDemuxer(const WebMDemuxer &) = delete;
+	void operator =(const WebMDemuxer &) = delete;
 public:
 	enum VIDEO_CODEC
 	{
@@ -74,7 +117,7 @@ public:
 		AUDIO_OPUS
 	};
 
-	WebMDemuxer(mkvparser::IMkvReader *reader, int videoTrack = 0, int audioTrack = 0);
+	WebMDemuxer(MkvReader *reader, int videoTrack = 0, int audioTrack = 0);
 	~WebMDemuxer();
 
 	inline bool isOpen() const
@@ -103,7 +146,7 @@ public:
 private:
 	inline bool notSupportedTrackNumber(long videoTrackNumber, long audioTrackNumber) const;
 
-	mkvparser::IMkvReader *m_reader;
+    MkvReader *m_reader;
 	mkvparser::Segment *m_segment;
 
 	const mkvparser::Cluster *m_cluster;

@@ -43,7 +43,7 @@ WebMFrame::~WebMFrame()
 
 /**/
 
-WebMDemuxer::WebMDemuxer(mkvparser::IMkvReader *reader, int videoTrack, int audioTrack) :
+WebMDemuxer::WebMDemuxer(MkvReader *reader, int videoTrack, int audioTrack) :
 	m_reader(reader),
 	m_segment(NULL),
 	m_cluster(NULL), m_block(NULL), m_blockEntry(NULL),

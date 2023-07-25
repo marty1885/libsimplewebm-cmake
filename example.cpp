@@ -25,49 +25,9 @@
 #include "OpusVorbisDecoder.hpp"
 #include "VPXDecoder.hpp"
 
-#include <mkvparser/mkvparser.h>
 
 #include <stdio.h>
 
-class MkvReader : public mkvparser::IMkvReader
-{
-public:
-	MkvReader(const char *filePath) :
-		m_file(fopen(filePath, "rb"))
-	{}
-	~MkvReader()
-	{
-		if (m_file)
-			fclose(m_file);
-	}
-
-	int Read(long long pos, long len, unsigned char *buf)
-	{
-		if (!m_file)
-			return -1;
-		fseek(m_file, pos, SEEK_SET);
-		const size_t size = fread(buf, 1, len, m_file);
-		if (size < size_t(len))
-			return -1;
-		return 0;
-	}
-	int Length(long long *total, long long *available)
-	{
-		if (!m_file)
-			return -1;
-		const off_t pos = ftell(m_file);
-		fseek(m_file, 0, SEEK_END);
-		if (total)
-			*total = ftell(m_file);
-		if (available)
-			*available = ftell(m_file);
-		fseek(m_file, pos, SEEK_SET);
-		return 0;
-	}
-
-private:
-	FILE *m_file;
-};
 
 int main(int argc, char *argv[])
 {
@@ -119,7 +79,9 @@ int main(int argc, char *argv[])
 					fprintf(stderr, "Audio decode error\n");
 					break;
 				}
-// 				fwrite(pcm, 1, numOutSamples * demuxer.getChannels() * sizeof(short), stdout);
+                //static FILE *f = fopen("out.pcm", "wb");
+                //fwrite(pcm, 1, numOutSamples * demuxer.getChannels() * sizeof(short), f);
+ 				//fwrite(pcm, 1, numOutSamples * demuxer.getChannels() * sizeof(short), stdout);
 			}
 		}
 
